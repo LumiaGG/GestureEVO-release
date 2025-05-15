@@ -46,6 +46,13 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "apk_filename=$(basename "$LATEST_APK")" >> $GITHUB_OUTPUT
       
+      - name: Get commit message for APK
+        id: get-commit-message
+        run: |
+          # 获取添加APK文件的提交信息
+          COMMIT_MESSAGE=$(git log -1 --pretty=format:%s -- "${{ steps.find-apk.outputs.apk_path }}")
+          echo "commit_message=$COMMIT_MESSAGE" >> $GITHUB_OUTPUT
+      
       - name: Create GitHub Release
         id: create-release
         uses: softprops/action-gh-release@v1
@@ -53,9 +60,9 @@ jobs:
           files: ${{ steps.find-apk.outputs.apk_path }}
           tag_name: v${{ steps.find-apk.outputs.version }}
           name: GestureEVO v${{ steps.find-apk.outputs.version }}
+          body: ${{ steps.get-commit-message.outputs.commit_message }}
           draft: false
           prerelease: false
-          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
