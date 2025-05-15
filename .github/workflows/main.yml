@@ -97,10 +97,10 @@ jobs:
           
           # 根据您的需求选择链接类型：Release页面或直接下载链接
           # 更新为Release页面链接
-          sed -i "s|const apkPath = './downloads/.*'|const apkPath = '$RELEASE_URL'|g" index.html
+          # sed -i "s|const apkPath = './downloads/.*'|const apkPath = '$RELEASE_URL'|g" index.html
           
           # 或者更新为直接下载链接
-          # sed -i "s|const apkPath = './downloads/.*'|const apkPath = '$DOWNLOAD_URL'|g" index.html
+          sed -i "s|const apkPath = './downloads/.*'|const apkPath = '$DOWNLOAD_URL'|g" index.html
           
           # 如果您的HTML中有直接引用APK文件的链接，也更新它们
           sed -i "s|href=\"./downloads/.*\.APK\"|href=\"$DOWNLOAD_URL\"|g" index.html
