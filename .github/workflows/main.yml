@@ -56,5 +56,6 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "Update APK download link to latest version"
-            git push
+            git pull origin main --rebase
+            git push origin main
           fi
