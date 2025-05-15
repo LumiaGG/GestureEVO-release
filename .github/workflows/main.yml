@@ -1,0 +1,162 @@
+name: Update APK and Create Release
+
+on:
+  push:
+    paths:
+      - 'downloads/**/*.APK'  # Triggered when APK files in downloads directory are updated
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  create-release-and-update-links:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Needed for creating releases
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Get full history to find file changes
+      
+      - name: Find latest APK file
+        id: find-apk
+        run: |
+          # Try to find APK from current push
+          LATEST_APK=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -i '\.APK$' | head -n 1)
+          
+          # If no APK found in current push, find the latest APK in the repository
+          if [ -z "$LATEST_APK" ]; then
+            LATEST_APK=$(find downloads -name "*.APK" -type f -o -name "*.apk" -type f | sort -r | head -n 1)
+          fi
+          
+          # If still no APK found, use default path
+          if [ -z "$LATEST_APK" ]; then
+            LATEST_APK="downloads/app-release.APK"
+          fi
+          
+          echo "Found APK file: $LATEST_APK"
+          echo "apk_path=$LATEST_APK" >> $GITHUB_OUTPUT
+          
+          # Extract version from APK filename (GestureEVO-1.3-051503.APK format)
+          if [[ "$LATEST_APK" =~ GestureEVO-([0-9]+\.[0-9]+-[0-9]+)\.APK ]]; then
+            VERSION="${BASH_REMATCH[1]}"
+          # Fallback pattern for other potential formats
+          elif [[ "$LATEST_APK" =~ -([0-9]+\.[0-9]+[.-][0-9]+)\.APK ]]; then
+            VERSION="${BASH_REMATCH[1]}"
+          else
+            # Try to get modified date as fallback version
+            MODIFIED_DATE=$(git log -1 --format=%cd --date=format:"%Y.%m.%d" -- "$LATEST_APK")
+            VERSION="$MODIFIED_DATE"
+          fi
+          
+          echo "Extracted version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          
+          # Get the APK filename
+          APK_FILENAME=$(basename "$LATEST_APK")
+          echo "apk_filename=$APK_FILENAME" >> $GITHUB_OUTPUT
+      
+      - name: Create GitHub Release
+        id: create-release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ steps.find-apk.outputs.apk_path }}
+          tag_name: v${{ steps.find-apk.outputs.version }}
+          name: Release v${{ steps.find-apk.outputs.version }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Get Release URL
+        id: get-release-url
+        run: |
+          # Extract the release URL from the create-release step
+          RELEASE_URL=${{ steps.create-release.outputs.url }}
+          # If URL is empty, construct it based on repo and tag
+          if [ -z "$RELEASE_URL" ]; then
+            REPO_OWNER=$(echo "$GITHUB_REPOSITORY" | cut -d "/" -f 1)
+            REPO_NAME=$(echo "$GITHUB_REPOSITORY" | cut -d "/" -f 2)
+            RELEASE_URL="https://github.com/$REPO_OWNER/$REPO_NAME/releases/tag/v${{ steps.find-apk.outputs.version }}"
+          fi
+          
+          # 计算直接下载链接
+          DOWNLOAD_URL="https://github.com/$GITHUB_REPOSITORY/releases/download/v${{ steps.find-apk.outputs.version }}/${{ steps.find-apk.outputs.apk_filename }}"
+          
+          echo "release_url=$RELEASE_URL" >> $GITHUB_OUTPUT
+          echo "download_url=$DOWNLOAD_URL" >> $GITHUB_OUTPUT
+          echo "Release URL: $RELEASE_URL"
+          echo "Direct Download URL: $DOWNLOAD_URL"
+      
+      - name: Update index.html
+        run: |
+          # Update APK path in index.html to point to the release URL instead of direct file
+          RELEASE_URL="${{ steps.get-release-url.outputs.release_url }}"
+          DOWNLOAD_URL="${{ steps.get-release-url.outputs.download_url }}"
+          
+          # 根据您的需求选择链接类型：Release页面或直接下载链接
+          # 更新为Release页面链接
+          sed -i "s|const apkPath = './downloads/.*'|const apkPath = '$RELEASE_URL'|g" index.html
+          
+          # 或者更新为直接下载链接
+          # sed -i "s|const apkPath = './downloads/.*'|const apkPath = '$DOWNLOAD_URL'|g" index.html
+          
+          # 如果您的HTML中有直接引用APK文件的链接，也更新它们
+          sed -i "s|href=\"./downloads/.*\.APK\"|href=\"$DOWNLOAD_URL\"|g" index.html
+          sed -i "s|href=\"./downloads/.*\.apk\"|href=\"$DOWNLOAD_URL\"|g" index.html
+          
+          echo "Updated index.html to point to GitHub Release URL: $RELEASE_URL"
+      
+      - name: Update version.json
+        run: |
+          VERSION="${{ steps.find-apk.outputs.version }}"
+          RELEASE_URL="${{ steps.get-release-url.outputs.release_url }}"
+          DOWNLOAD_URL="${{ steps.get-release-url.outputs.download_url }}"
+          APK_FILENAME="${{ steps.find-apk.outputs.apk_filename }}"
+          CURRENT_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          
+          # Create version.json with version and update information
+          cat > version.json << EOF
+          {
+            "version": "$VERSION",
+            "releaseUrl": "$RELEASE_URL",
+            "downloadUrl": "$DOWNLOAD_URL",
+            "lastUpdated": "$CURRENT_DATE",
+            "fileName": "$APK_FILENAME"
+          }
+          EOF
+          echo "Created/Updated version.json with version $VERSION and release URL"
+      
+      # 删除仓库中的APK文件
+      - name: Remove APK from repository
+        run: |
+          # 删除已处理的APK文件
+          APK_PATH="${{ steps.find-apk.outputs.apk_path }}"
+          echo "Removing APK file from repository: $APK_PATH"
+          rm -f "$APK_PATH"
+          
+          # 可选：如果您希望删除downloads目录中的所有APK文件，取消下面注释
+          # find downloads -name "*.APK" -o -name "*.apk" -type f -delete
+          
+          echo "Successfully removed APK file(s) from repository"
+      
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # 添加更改的文件
+          git add index.html version.json
+          
+          # 添加已删除的APK文件(这会将删除记录到Git中)
+          git add --all
+          
+          # 只有在有更改时才提交
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update APK download link to GitHub Release v${{ steps.find-apk.outputs.version }} and remove APK from repository"
+            git pull origin main --rebase
+            git push origin main
+          fi
