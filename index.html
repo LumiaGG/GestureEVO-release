@@ -3,78 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APK 下载</title>
+    <title>GestureEVO APK 下载</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Arial, sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
             text-align: center;
-            background-color: #f5f5f5;
-        }
-        h1 {
+            background-color: #f8f9fa;
             color: #333;
         }
-        .loading {
-            margin: 30px 0;
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .version-info {
             font-size: 18px;
+            margin: 20px 0;
+            color: #7f8c8d;
+        }
+        .update-date {
+            font-size: 14px;
+            color: #95a5a6;
+            margin-bottom: 30px;
         }
         .download-btn {
-            background-color: #4CAF50;
+            background-color: #24292e;
             color: white;
             border: none;
-            padding: 15px 30px;
+            padding: 12px 30px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 18px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-        .error-message {
-            color: #f44336;
-            margin-top: 20px;
             font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 15px 0;
+            transition: background-color 0.3s;
+        }
+        .download-btn:hover {
+            background-color: #0366d6;
+        }
+        .github-icon {
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        .changelog {
+            text-align: left;
+            margin: 30px auto;
+            max-width: 600px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        .loading {
+            margin: 20px 0;
+            color: #7f8c8d;
         }
     </style>
 </head>
 <body>
-    <h1>APK 文件下载</h1>
-    
-    <div id="loading" class="loading">正在准备下载...</div>
-    <div id="error" class="error-message" style="display: none;">找不到APK文件</div>
-    <a id="manualDownload" class="download-btn" style="display: none;" href="">手动下载</a>
+    <div class="container">
+        <h1>GestureEVO</h1>
+        <div class="version-info">
+            当前版本: <span id="version">加载中...</span>
+        </div>
+        <div class="update-date">
+            最后更新: <span id="updateDate">加载中...</span>
+        </div>
+        
+        <a id="downloadBtn" class="download-btn" href="#" target="_blank">
+            <svg class="github-icon" height="20" viewBox="0 0 16 16" width="20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+            </svg>
+            前往 GitHub 下载
+        </a>
+        
+        <div class="changelog">
+            <h3>更新内容</h3>
+            <div id="releaseNotes">加载中...</div>
+        </div>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // APK文件路径 - 会被GitHub Action自动更新
-            const apkPath = 'https://github.com/LumiaGG/GestureEVO-release/releases/tag/v1.4-051505';
-            
-            // 检查文件是否存在并自动跳转
-            fetch(apkPath, { method: 'HEAD' })
-                .then(response => {
-                    if (response.ok) {
-                        // 文件存在，直接跳转
-                        window.location.href = apkPath;
-                    } else {
-                        // 文件不存在，显示错误信息
-                        document.getElementById('loading').style.display = 'none';
-                        document.getElementById('error').style.display = 'block';
+            // 从version.json获取版本信息
+            fetch('version.json')
+                .then(response => response.json())
+                .then(data => {
+                    // 更新页面信息
+                    document.getElementById('version').textContent = data.version;
+                    document.getElementById('updateDate').textContent = new Date(data.lastUpdated).toLocaleString();
+                    document.getElementById('downloadBtn').href = data.releaseUrl;
+                    
+                    // 如果有更新日志，可以在这里显示
+                    if (data.releaseNotes) {
+                        document.getElementById('releaseNotes').innerHTML = data.releaseNotes;
                     }
                 })
                 .catch(error => {
-                    console.error('检查APK文件失败:', error);
-                    
-                    // 显示错误信息，同时提供手动下载选项
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('error').style.display = 'block';
-                    
-                    // 同时显示手动下载按钮（如果您确定文件存在但fetch可能因其他原因失败）
-                    const manualDownload = document.getElementById('manualDownload');
-                    manualDownload.href = apkPath;
-                    manualDownload.style.display = 'inline-block';
+                    console.error('获取版本信息失败:', error);
+                    document.getElementById('version').textContent = '获取失败';
                 });
         });
     </script>

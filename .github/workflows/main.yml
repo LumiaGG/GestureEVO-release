@@ -3,11 +3,11 @@ name: Update APK and Create Release
 on:
   push:
     paths:
-      - '*.APK'  # 现在监控根目录下的APK文件
+      - '*.APK'  # 监控根目录下的APK文件
   workflow_dispatch:  # 允许手动触发
 
 jobs:
-  create-release-and-update-links:
+  create-release-and-update:
     runs-on: ubuntu-latest
     permissions:
       contents: write  # 需要创建发布
@@ -21,40 +21,30 @@ jobs:
       - name: Find latest APK file
         id: find-apk
         run: |
-          # 尝试从当前推送中查找APK
-          LATEST_APK=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -i '\.APK$' | head -n 1)
+          # 查找最新的APK文件
+          LATEST_APK=$(find . -maxdepth 1 -name "*.APK" -type f -o -name "*.apk" -type f | sort -r | head -n 1)
           
-          # 如果在当前推送中未找到APK，则在仓库中查找最新的APK
+          # 如果没有找到APK，使用默认路径
           if [ -z "$LATEST_APK" ]; then
-            LATEST_APK=$(find . -maxdepth 1 -name "*.APK" -type f -o -name "*.apk" -type f | sort -r | head -n 1)
-          fi
-          
-          # 如果仍然没有找到APK，使用默认路径
-          if [ -z "$LATEST_APK" ]; then
-            LATEST_APK="app-release.APK"
+            LATEST_APK="GestureEVO-release.APK"
           fi
           
           echo "Found APK file: $LATEST_APK"
           echo "apk_path=$LATEST_APK" >> $GITHUB_OUTPUT
           
-          # 从APK文件名中提取版本号 (GestureEVO-1.3-051503.APK格式)
+          # 从文件名提取版本号
           if [[ "$LATEST_APK" =~ GestureEVO-([0-9]+\.[0-9]+-[0-9]+)\.APK ]]; then
             VERSION="${BASH_REMATCH[1]}"
-          # 其他可能格式的回退模式
           elif [[ "$LATEST_APK" =~ -([0-9]+\.[0-9]+[.-][0-9]+)\.APK ]]; then
             VERSION="${BASH_REMATCH[1]}"
           else
-            # 尝试获取修改日期作为回退版本
             MODIFIED_DATE=$(git log -1 --format=%cd --date=format:"%Y.%m.%d" -- "$LATEST_APK")
             VERSION="$MODIFIED_DATE"
           fi
           
           echo "Extracted version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          
-          # 获取APK文件名
-          APK_FILENAME=$(basename "$LATEST_APK")
-          echo "apk_filename=$APK_FILENAME" >> $GITHUB_OUTPUT
+          echo "apk_filename=$(basename "$LATEST_APK")" >> $GITHUB_OUTPUT
       
       - name: Create GitHub Release
         id: create-release
@@ -62,92 +52,61 @@ jobs:
         with:
           files: ${{ steps.find-apk.outputs.apk_path }}
           tag_name: v${{ steps.find-apk.outputs.version }}
-          name: Release v${{ steps.find-apk.outputs.version }}
+          name: GestureEVO v${{ steps.find-apk.outputs.version }}
           draft: false
           prerelease: false
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Get Release URL
-        id: get-release-url
+      - name: Get Release Info
+        id: get-release-info
         run: |
-          # 从create-release步骤中提取发布URL
-          RELEASE_URL=${{ steps.create-release.outputs.url }}
-          # 如果URL为空，则基于仓库和标签构造
-          if [ -z "$RELEASE_URL" ]; then
-            REPO_OWNER=$(echo "$GITHUB_REPOSITORY" | cut -d "/" -f 1)
-            REPO_NAME=$(echo "$GITHUB_REPOSITORY" | cut -d "/" -f 2)
-            RELEASE_URL="https://github.com/$REPO_OWNER/$REPO_NAME/releases/tag/v${{ steps.find-apk.outputs.version }}"
-          fi
+          # 获取发布说明
+          RELEASE_NOTES=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/tags/v${{ steps.find-apk.outputs.version }}" | \
+            jq -r '.body')
           
-          # 计算直接下载链接
-          DOWNLOAD_URL="https://github.com/$GITHUB_REPOSITORY/releases/download/v${{ steps.find-apk.outputs.version }}/${{ steps.find-apk.outputs.apk_filename }}"
+          # 转义JSON特殊字符
+          RELEASE_NOTES_JSON=$(echo "$RELEASE_NOTES" | jq -Rs .)
           
-          echo "release_url=$RELEASE_URL" >> $GITHUB_OUTPUT
-          echo "download_url=$DOWNLOAD_URL" >> $GITHUB_OUTPUT
-          echo "Release URL: $RELEASE_URL"
-          echo "Direct Download URL: $DOWNLOAD_URL"
-      
-      - name: Update index.html
-        run: |
-          # 更新index.html中的APK路径指向发布URL而不是直接文件
-          RELEASE_URL="${{ steps.get-release-url.outputs.release_url }}"
-          DOWNLOAD_URL="${{ steps.get-release-url.outputs.download_url }}"
-          
-          # 更新为直接下载链接
-          sed -i "s|const apkPath = '.*\.APK'|const apkPath = '$DOWNLOAD_URL'|g" index.html
-          sed -i "s|const apkPath = '.*\.apk'|const apkPath = '$DOWNLOAD_URL'|g" index.html
-          
-          # 更新HTML中直接引用APK文件的链接
-          sed -i "s|href=\".*\.APK\"|href=\"$DOWNLOAD_URL\"|g" index.html
-          sed -i "s|href=\".*\.apk\"|href=\"$DOWNLOAD_URL\"|g" index.html
-          
-          echo "Updated index.html to point to GitHub Release URL: $RELEASE_URL"
+          echo "release_url=https://github.com/$GITHUB_REPOSITORY/releases/tag/v${{ steps.find-apk.outputs.version }}" >> $GITHUB_OUTPUT
+          echo "release_notes=$RELEASE_NOTES_JSON" >> $GITHUB_OUTPUT
       
       - name: Update version.json
         run: |
-          VERSION="${{ steps.find-apk.outputs.version }}"
-          RELEASE_URL="${{ steps.get-release-url.outputs.release_url }}"
-          DOWNLOAD_URL="${{ steps.get-release-url.outputs.download_url }}"
-          APK_FILENAME="${{ steps.find-apk.outputs.apk_filename }}"
           CURRENT_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           
-          # 创建包含版本和更新信息的version.json
           cat > version.json << EOF
           {
-            "version": "$VERSION",
-            "releaseUrl": "$RELEASE_URL",
-            "downloadUrl": "$DOWNLOAD_URL",
+            "version": "${{ steps.find-apk.outputs.version }}",
+            "releaseUrl": "https://github.com/$GITHUB_REPOSITORY/releases/tag/v${{ steps.find-apk.outputs.version }}",
+            "downloadUrl": "https://github.com/$GITHUB_REPOSITORY/releases/download/v${{ steps.find-apk.outputs.version }}/${{ steps.find-apk.outputs.apk_filename }}",
             "lastUpdated": "$CURRENT_DATE",
-            "fileName": "$APK_FILENAME"
+            "fileName": "${{ steps.find-apk.outputs.apk_filename }}",
+            "releaseNotes": ${{ steps.get-release-info.outputs.release_notes }}
           }
           EOF
-          echo "Created/Updated version.json with version $VERSION and release URL"
+          echo "Updated version.json"
       
-      # 删除仓库中的APK文件
-      - name: Remove APK files from repository
+      - name: Remove APK file
         run: |
-          echo "Removing all APK files from repository root..."
-          find . -maxdepth 1 -type f \( -name "*.apk" -o -name "*.APK" \) -delete
-          echo "APK files removed from repository root."
+          echo "Removing APK file from repository..."
+          rm -f "${{ steps.find-apk.outputs.apk_path }}"
+          echo "APK file removed."
             
       - name: Commit and push changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           
-          # 添加更改的文件
           git add index.html version.json
-          
-          # 添加已删除的APK文件(这会将删除记录到Git中)
           git add --all
           
-          # 只有在有更改时才提交
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Update APK download link to GitHub Release v${{ steps.find-apk.outputs.version }} and remove APK from repository"
+            git commit -m "Update release info for v${{ steps.find-apk.outputs.version }}"
             git pull origin main --rebase
             git push origin main
           fi
