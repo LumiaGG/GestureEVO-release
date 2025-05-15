@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APK 下载</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+        }
+        .loading {
+            margin: 30px 0;
+            font-size: 18px;
+        }
+        .download-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .error-message {
+            color: #f44336;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>APK 文件下载</h1>
+    
+    <div id="loading" class="loading">正在准备下载...</div>
+    <div id="error" class="error-message" style="display: none;">找不到APK文件，请确认文件已上传到downloads文件夹。</div>
+    <a id="manualDownload" class="download-btn" style="display: none;" href="">手动下载</a>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // APK文件路径 - 根据您的实际情况修改
+            const apkPath = './downloads/app-release.apk';
+            
+            // 检查文件是否存在并自动跳转
+            fetch(apkPath, { method: 'HEAD' })
+                .then(response => {
+                    if (response.ok) {
+                        // 文件存在，直接跳转
+                        window.location.href = apkPath;
+                    } else {
+                        // 文件不存在，显示错误信息
+                        document.getElementById('loading').style.display = 'none';
+                        document.getElementById('error').style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('检查APK文件失败:', error);
+                    
+                    // 显示错误信息，同时提供手动下载选项
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('error').style.display = 'block';
+                    
+                    // 同时显示手动下载按钮（如果您确定文件存在但fetch可能因其他原因失败）
+                    const manualDownload = document.getElementById('manualDownload');
+                    manualDownload.href = apkPath;
+                    manualDownload.style.display = 'inline-block';
+                });
+        });
+    </script>
+</body>
+</html>
