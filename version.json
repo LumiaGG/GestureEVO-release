@@ -1,7 +1,8 @@
 {
-  "version": "1.4-051603",
-  "releaseUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/tag/v1.4-051603",
-  "downloadUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/download/v1.4-051603/GestureEVO-1.4-051603.APK",
-  "lastUpdated": "2025-05-15T16:50:52Z",
-  "fileName": "GestureEVO-1.4-051603.APK"
+  "version": "1.4-051604",
+  "releaseUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/tag/v1.4-051604",
+  "downloadUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/download/v1.4-051604/GestureEVO-1.4-051604.APK",
+  "lastUpdated": "2025-05-15T16:57:24Z",
+  "fileName": "GestureEVO-1.4-051604.APK",
+  "releaseNotes": "**Full Changelog**: https://github.com/LumiaGG/GestureEVO-release/compare/v1.4-051603...v1.4-051604\n"
 }
