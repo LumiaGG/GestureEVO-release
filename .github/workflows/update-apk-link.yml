@@ -3,7 +3,7 @@ name: Update APK Download Link
 on:
   push:
     paths:
-      - 'downloads/**/*.apk'  # 当downloads目录中的APK文件有更新时触发
+      - 'downloads/**/*.APK'  # 当downloads目录中的APK文件有更新时触发
   workflow_dispatch:  # 允许手动触发
 
 jobs:
