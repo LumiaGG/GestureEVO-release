@@ -1,0 +1,5 @@
+{
+    "version": "$VERSION",
+    "apkPath": "$APK_PATH",
+    "lastUpdated": "$CURRENT_DATE"
+}
