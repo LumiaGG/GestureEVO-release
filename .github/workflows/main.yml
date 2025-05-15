@@ -129,18 +129,12 @@ jobs:
           echo "Created/Updated version.json with version $VERSION and release URL"
       
       # 删除仓库中的APK文件
-      - name: Remove APK from repository
+      - name: Remove APK files from downloads directory
         run: |
-          # 删除已处理的APK文件
-          APK_PATH="${{ steps.find-apk.outputs.apk_path }}"
-          echo "Removing APK file from repository: $APK_PATH"
-          rm -f "$APK_PATH"
-          
-          # 可选：如果您希望删除downloads目录中的所有APK文件，取消下面注释
-          # find downloads -name "*.APK" -o -name "*.apk" -type f -delete
-          
-          echo "Successfully removed APK file(s) from repository"
-      
+          echo "Removing all APK files inside downloads directory (keeping the folder)..."
+          find downloads/ -type f \( -name "*.apk" -o -name "*.APK" \) -delete
+          echo "APK files removed, downloads directory kept."
+            
       - name: Commit and push changes
         run: |
           git config --local user.email "action@github.com"
