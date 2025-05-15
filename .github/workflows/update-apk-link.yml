@@ -19,16 +19,16 @@ jobs:
         id: find-apk
         run: |
           # 查找最新推送的APK文件
-          LATEST_APK=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.apk$' | head -n 1)
+          LATEST_APK=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.APK$' | head -n 1)
           
           # 如果没有在当前推送中找到APK文件，则查找整个仓库中的APK文件
           if [ -z "$LATEST_APK" ]; then
-            LATEST_APK=$(find downloads -name "*.apk" -type f | sort -r | head -n 1)
+            LATEST_APK=$(find downloads -name "*.APK" -type f | sort -r | head -n 1)
           fi
           
           # 如果仍然没有找到APK文件，使用默认路径
           if [ -z "$LATEST_APK" ]; then
-            LATEST_APK="downloads/app-release.apk"
+            LATEST_APK="downloads/app-release.APK"
           fi
           
           echo "Found APK file: $LATEST_APK"
