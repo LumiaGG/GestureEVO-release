@@ -1,8 +1,8 @@
 {
-  "version": "1.4-051602",
-  "releaseUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/tag/v1.4-051602",
-  "downloadUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/download/v1.4-051602/GestureEVO-1.4-051602.APK",
-  "lastUpdated": "2025-05-16T03:19:49Z",
-  "fileName": "GestureEVO-1.4-051602.APK",
-  "releaseNotes": "更改OCR图片扩充方式 分词页面通过链接方式跳转时强制删除其中的空格\n"
+  "version": "1.4-051801",
+  "releaseUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/tag/v1.4-051801",
+  "downloadUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/download/v1.4-051801/GestureEVO-1.4-051801.APK",
+  "lastUpdated": "2025-05-18T03:13:36Z",
+  "fileName": "GestureEVO-1.4-051801.APK",
+  "releaseNotes": "修复分享图片到GestureEVO时可能触发的错误\n"
 }
