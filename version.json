@@ -1,8 +1,8 @@
 {
-  "version": "1.4-051801",
-  "releaseUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/tag/v1.4-051801",
-  "downloadUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/download/v1.4-051801/GestureEVO-1.4-051801.APK",
-  "lastUpdated": "2025-05-18T03:13:36Z",
-  "fileName": "GestureEVO-1.4-051801.APK",
-  "releaseNotes": "修复分享图片到GestureEVO时可能触发的错误\n"
+  "version": "1.4-052601",
+  "releaseUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/tag/v1.4-052601",
+  "downloadUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/download/v1.4-052601/GestureEVO-1.4-052601.APK",
+  "lastUpdated": "2025-05-26T01:54:34Z",
+  "fileName": "GestureEVO-1.4-052601.APK",
+  "releaseNotes": "现在指针和屏幕内容在选取阶段时可以通过多指触摸来取消操作\n"
 }
