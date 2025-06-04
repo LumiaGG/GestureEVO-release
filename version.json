@@ -1,8 +1,8 @@
 {
-  "version": "1.4-051801",
-  "releaseUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/tag/v1.4-051801",
-  "downloadUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/download/v1.4-051801/GestureEVO-1.4-051801.APK",
-  "lastUpdated": "2025-05-18T03:13:36Z",
-  "fileName": "GestureEVO-1.4-051801.APK",
-  "releaseNotes": "修复分享图片到GestureEVO时可能触发的错误\n"
+  "version": "1.4-060501",
+  "releaseUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/tag/v1.4-060501",
+  "downloadUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/download/v1.4-060501/GestureEVO-1.4-060501.APK",
+  "lastUpdated": "2025-06-04T17:15:57Z",
+  "fileName": "GestureEVO-1.4-060501.APK",
+  "releaseNotes": "支持显示在手势提示动画中显示功能图标 修复无障碍服务在启动时的一些可能的错误\n"
 }
