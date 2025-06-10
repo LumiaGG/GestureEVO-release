@@ -1,8 +1,8 @@
 {
-  "version": "1.4-051801",
-  "releaseUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/tag/v1.4-051801",
-  "downloadUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/download/v1.4-051801/GestureEVO-1.4-051801.APK",
-  "lastUpdated": "2025-05-18T03:13:36Z",
-  "fileName": "GestureEVO-1.4-051801.APK",
-  "releaseNotes": "修复分享图片到GestureEVO时可能触发的错误\n"
+  "version": "1.4-061001",
+  "releaseUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/tag/v1.4-061001",
+  "downloadUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/download/v1.4-061001/GestureEVO-1.4-061001.APK",
+  "lastUpdated": "2025-06-10T02:07:22Z",
+  "fileName": "GestureEVO-1.4-061001.APK",
+  "releaseNotes": "优化手势判定和反馈图标\n"
 }
