@@ -1,8 +1,8 @@
 {
-  "version": "1.4-051801",
-  "releaseUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/tag/v1.4-051801",
-  "downloadUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/download/v1.4-051801/GestureEVO-1.4-051801.APK",
-  "lastUpdated": "2025-05-18T03:13:36Z",
-  "fileName": "GestureEVO-1.4-051801.APK",
-  "releaseNotes": "修复分享图片到GestureEVO时可能触发的错误\n"
+  "version": "1.4-062402",
+  "releaseUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/tag/v1.4-062402",
+  "downloadUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/download/v1.4-062402/GestureEVO-1.4-062402.APK",
+  "lastUpdated": "2025-06-24T03:18:55Z",
+  "fileName": "GestureEVO-1.4-062402.APK",
+  "releaseNotes": "- 修复触摸透明图标时无法刷新触摸信息的错误 - 优化选中提示图标的性能\n"
 }
