@@ -1,8 +1,8 @@
 {
-  "version": "1.4-051801",
-  "releaseUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/tag/v1.4-051801",
-  "downloadUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/download/v1.4-051801/GestureEVO-1.4-051801.APK",
-  "lastUpdated": "2025-05-18T03:13:36Z",
-  "fileName": "GestureEVO-1.4-051801.APK",
-  "releaseNotes": "修复分享图片到GestureEVO时可能触发的错误\n"
+  "version": "1.5-111301",
+  "releaseUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/tag/v1.5-111301",
+  "downloadUrl": "https://github.com/LumiaGG/GestureEVO-release/releases/download/v1.5-111301/GestureEVO-1.5-111301.APK",
+  "lastUpdated": "2025-11-13T09:43:04Z",
+  "fileName": "GestureEVO-1.5-111301.APK",
+  "releaseNotes": "1. 小窗支持了vivo等支持通过分享打开小窗的系统。 2. 新增了搜索模块 3. 其他优化和修复\n"
 }
